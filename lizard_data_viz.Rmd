@@ -1,0 +1,104 @@
+---
+title: "Lizard Data Viz"
+author: "Hailey Veirs"
+date: "`r Sys.Date()`"
+output: html_document
+---
+
+```{r setup, include=FALSE, warning=FALSE, message=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+library(tidyverse)
+library(janitor)
+library(here)
+
+library(patchwork)
+library(ggrepel)
+library(gghighlight)
+library(paletteer)
+library(ggExtra)
+library(ggbeeswarm)
+
+# And for another dataset we'll explore:
+library(gapminder)
+```
+
+## Read in data
+
+```{r}
+lizards <- read_csv(here("data_tidy", "lizards.csv"))
+```
+
+
+```{r}
+ggplot(lizards, aes(x = total_length, y = weight)) + 
+  geom_point()
+```
+
+
+```{r}
+lizard_hist <- ggplot(lizards, aes(x = total_length)) + 
+  geom_histogram(color = "orange", 
+                 fill = "blue", 
+                 linetype = "dotted")
+
+lizard_hist
+```
+
+```{r}
+ggplot(data = lizards, aes(x = total_length, y = weight)) + 
+  geom_point(shape = 22, color = "cyan4", 
+             fill = "yellow", size = 2, 
+             alpha = 0.5)
+```
+
+
+```{r}
+ggplot(data = lizards, aes(x = total_length, y = weight)) + 
+  geom_point(aes(color = common_name, size = total_length)) +
+  theme_minimal()
+```
+
+
+```{r}
+ggplot(data = lizards, aes(x = total_length, y = weight)) + 
+  geom_point() + 
+  facet_wrap(~common_name, scales = "free")
+```
+
+```{r}
+count_liz <- lizards |> 
+  group_by(common_name) |>
+  summarize(
+    counts = n()
+  )
+
+count_lizards <- lizards |> 
+  count(common_name, site, tail)
+```
+
+```{r}
+ggplot(count_liz, 
+       aes(y = fct_reorder(common_name, counts), 
+           x = counts)) + 
+  geom_col()
+
+```
+
+### Four cats? Factor reorder
+changes the order of a list of characters/strings
+
+```{r}
+ggplot(data = lizards, aes(x = total_length, y = weight)) + 
+  geom_point(aes(color = common_name)) + 
+  facet_wrap(~common_name, scales = "free") + 
+  theme_minimal() + 
+  labs(x = "Total Length (mm)", 
+       y = "Weight (g)", 
+       title = "Lizard Sizes",
+       subtitle = "All lizards follow the length-width model", 
+       caption = "Cite data source")
+```
+
+
+
+
